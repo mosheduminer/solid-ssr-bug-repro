@@ -1,17 +1,17 @@
-import { children, Component, For } from "solid-js";
+import { children, Component, For, JSX, Match, Switch } from "solid-js";
 import { ResolvedChildren } from "solid-js/types/reactive/signal";
 import Counter from "~/components/Counter";
 import "./index.css";
 
-const Comp: Component = (props) => {
+const Wrapper: Component = (props) => {
   const c = children(() => props.children);
   return (
-    <For each={c() as ResolvedChildren[]}>
+    <For each={c() as unknown as { num: number }[]}>
       {(item, index) => {
-        console.log(`This won't log ${item}`)
+        console.log(`This won't log ${item}`);
         return (
           <div>
-            {index()}: {item}
+            {index()}: {item.num}
           </div>
         );
       }}
@@ -19,21 +19,22 @@ const Comp: Component = (props) => {
   );
 };
 
+const Inner = (props: { num: number }) => {
+  return props as unknown as JSX.Element;
+};
+
 export default function Home() {
   return (
     <main>
       <h1>Hello world!</h1>
-      <Comp>
+      <Wrapper>
         <For each={[...Array(5).keys()]}>
-          {num => {
-            console.log(`This logs ${num}`)
-            return (
-              <div>{num}</div>
-            )
+          {(num) => {
+            console.log(`This logs ${num}`);
+            return <Inner num={num} />;
           }}
         </For>
-      </Comp>
-      <Counter />
+      </Wrapper>
       <p>
         Visit{" "}
         <a href="https://solidjs.com" target="_blank">
